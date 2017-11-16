@@ -973,6 +973,10 @@ iterations with -O",
         type=arguments.type.executable,
         metavar="PATH")
     parser.add_argument(
+        "--lld",
+        help="use lld instead of gold linker for Linux hosts",
+        action=arguments.action.enable)
+    parser.add_argument(
         "--distcc",
         help="use distcc in pump mode",
         action=arguments.action.enable)
