@@ -1619,7 +1619,7 @@ function(add_swift_library name)
         if(SWIFTLIB_IS_SDK_OVERLAY)
           list(APPEND swiftlib_swift_compile_flags_all "-Fsystem" "${SWIFT_SDK_${sdk}_PATH}/System/Library/PrivateFrameworks/")
         endif()
-       
+
        if("${sdk}" STREQUAL "IOS_SIMULATOR")
          if("${name}" STREQUAL "swiftMediaPlayer")
            message("DISABLING AUTOLINK FOR swiftMediaPlayer")
@@ -1920,7 +1920,7 @@ function(add_swift_library name)
           LIBRARY DESTINATION lib${LLVM_LIBDIR_SUFFIX}
           RUNTIME DESTINATION bin)
       swift_is_installing_component(dev is_installing)
-      
+
       if(NOT is_installing)
         set_property(GLOBAL APPEND PROPERTY SWIFT_BUILDTREE_EXPORTS ${name})
       else()
@@ -2264,7 +2264,7 @@ function(add_swift_host_tool executable)
 
     swift_is_installing_component(${ADDSWIFTHOSTTOOL_SWIFT_COMPONENT}
       is_installing)
-  
+
     if(NOT is_installing)
       set_property(GLOBAL APPEND PROPERTY SWIFT_BUILDTREE_EXPORTS ${executable})
     else()
