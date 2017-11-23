@@ -71,8 +71,8 @@ foreach(sdk ${SWIFT_SDKS})
     endif()
 
     if(NOT "${sdk}" STREQUAL "HAIKU")
-      set(GLIBC_INCLUDE_PATH "${SWIFT_SDK_${sdk}_PATH}/${GLIBC_SYSROOT_RELATIVE_INCLUDE_PATH}")
-      set(GLIBC_ARCH_INCLUDE_PATH "${SWIFT_SDK_${sdk}_PATH}/${GLIBC_SYSROOT_RELATIVE_ARCH_INCLUDE_PATH}")
+      set(GLIBC_INCLUDE_PATH "${SWIFT_SDK_${sdk}_ARCH_${arch}_PATH}/${GLIBC_SYSROOT_RELATIVE_INCLUDE_PATH}")
+      set(GLIBC_ARCH_INCLUDE_PATH "${SWIFT_SDK_${sdk}_ARCH_${arch}_PATH}/${GLIBC_SYSROOT_RELATIVE_ARCH_INCLUDE_PATH}")
     endif()
 
     set(glibc_modulemap_source "glibc.modulemap.gyb")
@@ -94,7 +94,7 @@ foreach(sdk ${SWIFT_SDKS})
 
     # If this SDK is a target for a non-native host, create a native modulemap
     # without a sysroot prefix. This is the one we'll install instead.
-    if(NOT "${SWIFT_SDK_${sdk}_PATH}" STREQUAL "/")
+    if(NOT "${SWIFT_SDK_${sdk}_ARCH_${arch}_PATH}" STREQUAL "/")
 
       set(glibc_sysroot_relative_modulemap_out "${module_dir}/sysroot-relative-modulemaps/glibc.modulemap")
       handle_gyb_source_single(glibc_modulemap_native_target

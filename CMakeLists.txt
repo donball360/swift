@@ -181,10 +181,35 @@ set(SWIFT_ANDROID_DEPLOY_DEVICE_PATH "" CACHE STRING
   "Path on an Android device where build products will be pushed. These are used when running the test suite against the device")
 
 #
-# User-configurable ICU specific options for Android, FreeBSD, Linux and Haiku.
+# User-configurable Fuchsia specific options
 #
 
-foreach(sdk ANDROID;FREEBSD;LINUX;WINDOWS;FUCHSIA;HAIKU)
+set(SWIFT_FUCHSIA_AARCH64_SYSROOT "" CACHE STRING
+  "Path to a Fuchsia zircon aarch64 sysroot directory")
+
+set(SWIFT_FUCHSIA_X86_64_SYSROOT "" CACHE STRING
+  "Path to a Fuchsia zircon x86_64 sysroot directory")
+
+set(SWIFT_FUCHSIA_AARCH64_LIBS "" CACHE STRING
+  "Path to a Fuchsia aarch64 shared libs directory")
+
+set(SWIFT_FUCHSIA_X86_64_LIBS "" CACHE STRING
+  "Path to a Fuchsia x86_64 shared libs directory")
+
+set(SWIFT_FUCHSIA_ICU_UC_INCLUDE "" CACHE STRING
+  "Path to a directory containing Fuchsia's ICU common headers")
+
+set(SWIFT_FUCHSIA_ICU_I18N_INCLUDE "" CACHE STRING
+  "Path to a directory containing Fuchsia's ICU i18n headers")
+
+set(SWIFT_FUCHSIA_TOOLCHAIN_PATH "" CACHE STRING
+  "Path to a directory containing a Fuchsia clang toolchain")
+
+#
+# User-configurable ICU specific options for non-Darwin SDKs.
+#
+
+foreach(sdk ANDROID;FREEBSD;LINUX;WINDOWS;HAIKU)
   set(SWIFT_${sdk}_ICU_UC "" CACHE STRING
       "Path to a directory containing the icuuc library for ${sdk}")
   set(SWIFT_${sdk}_ICU_UC_INCLUDE "" CACHE STRING
@@ -755,15 +780,22 @@ endif()
 
 # Should we cross-compile the standard library for Fuchsia
 is_sdk_requested(FUCHSIA swift_build_fuchsia)
-if(swift_build_fuchsia AND NOT "${SWIFT_FUCHSIA_BUILD_PATH}" STREQUAL "")
-  # HACK: support arm64 fuchsia builds
-  set(SWIFT_FUCHSIA_SYSROOT
-      "${SWIFT_FUCHSIA_BUILD_PATH}/out/build-zircon/build-zircon-pc-x86-64/sysroot")
+if(swift_build_fuchsia)
+  set(fuchsia_archs)
 
-  set(SWIFT_SDK_FUCHSIA_ARCH_x86_64_LINKER
-    "${SWIFT_FUCHSIA_BUILD_PATH}/buildtools/linux-x64/clang/bin/ld.lld")
+  if (NOT SWIFT_FUCHSIA_AARCH64_SYSROOT STREQUAL "")
+    set(SWIFT_SDK_FUCHSIA_ARCH_aarch64_PATH "${SWIFT_FUCHSIA_AARCH64_SYSROOT}")
+    list(APPEND fuchsia_archs "aarch64")
+  endif()
+  if (NOT SWIFT_FUCHSIA_X86_64_SYSROOT STREQUAL "")
+    set(SWIFT_SDK_FUCHSIA_ARCH_x86_64_PATH "${SWIFT_FUCHSIA_X86_64_SYSROOT}")
+    list(APPEND fuchsia_archs "x86_64")
+  endif()
 
-  configure_sdk_unix(FUCHSIA "Fuchsia" "fuchsia" "fuchsia" "x86_64" "x86_64-unknown-fuchsia" "${SWIFT_FUCHSIA_SYSROOT}")
+  set(SWIFT_FUCHSIA_ICU_UC "-licuuc")
+  set(SWIFT_FUCHSIA_ICU_I18N "-licui18n")
+
+  configure_sdk_fuchsia(FUCHSIA "Fuchsia" "fuchsia" "fuchsia" "${fuchsia_archs}")
 
   if (NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin" OR "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux"))
     message(FATAL_ERROR "A Darwin or Linux host is required to build the Swift runtime for Fuchsia")

@@ -107,9 +107,9 @@ function(_add_variant_c_compile_link_flags)
 
   is_darwin_based_sdk("${CFLAGS_SDK}" IS_DARWIN)
   if(IS_DARWIN)
-    list(APPEND result "-isysroot" "${SWIFT_SDK_${CFLAGS_SDK}_PATH}")
-  elseif(NOT SWIFT_COMPILER_IS_MSVC_LIKE AND NOT "${SWIFT_SDK_${CFLAGS_SDK}_PATH}" STREQUAL "/")
-    list(APPEND result "--sysroot=${SWIFT_SDK_${CFLAGS_SDK}_PATH}")
+    list(APPEND result "-isysroot" "${SWIFT_SDK_${CFLAGS_SDK}_ARCH_${CFLAGS_ARCH}_PATH}")
+  elseif(NOT SWIFT_COMPILER_IS_MSVC_LIKE AND NOT "${SWIFT_SDK_${CFLAGS_SDK}_ARCH_${CFLAGS_ARCH}_PATH}" STREQUAL "/")
+    list(APPEND result "--sysroot=${SWIFT_SDK_${CFLAGS_SDK}_ARCH_${CFLAGS_ARCH}_PATH}")
   endif()
 
   if("${CFLAGS_SDK}" STREQUAL "ANDROID")
@@ -121,8 +121,7 @@ function(_add_variant_c_compile_link_flags)
 
   if("${CFLAGS_SDK}" STREQUAL "FUCHSIA")
     list(APPEND result
-      "-I${SWIFT_FUCHSIA_BUILD_PATH}/buildtools/linux-x64/clang/lib/x86_64-fuchsia/include/c++/v1/"
-      "-L${SWIFT_FUCHSIA_BUILD_PATH}/buildtools/linux-x64/clang/lib/x86_64-fuchsia/lib")
+      "-I${SWIFT_FUCHSIA_TOOLCHAIN_PATH}/lib/${CFLAGS_ARCH}-fuchsia/include/c++/v1/")
   endif()
 
   if(IS_DARWIN)
@@ -277,10 +276,15 @@ function(_add_variant_c_compile_flags)
   endif()
 
   if("${CFLAGS_SDK}" STREQUAL "FUCHSIA")
+    if ("${CFLAGS_ARCH}" STREQUAL "x86_64")
+      # LLVM may assume that CMPXCHG16B instruction doesn't exist on some x64 cpus
+      # and will attempt to replace it with a libcall to a libgcc function that
+      # doesn't exist in compiler-rt
+      list(APPEND result "-mcx16")
+    endif()
     list(APPEND result
-      "-mcx16"
-      "-I${SWIFT_FUCHSIA_BUILD_PATH}/third_party/icu/source/common/"
-      "-I${SWIFT_FUCHSIA_BUILD_PATH}/third_party/icu/source/i18n/")
+      "-I${SWIFT_FUCHSIA_ICU_CU_INCLUDE}"
+      "-I${SWIFT_FUCHSIA_ICU_I18N_INCLUDE}")
   endif()
 
   set("${CFLAGS_RESULT_VAR_NAME}" "${result}" PARENT_SCOPE)
@@ -290,9 +294,9 @@ function(_add_variant_swift_compile_flags
     sdk arch build_type enable_assertions result_var_name)
   set(result ${${result_var_name}})
 
-  # On Windows, we don't set SWIFT_SDK_WINDOWS_PATH, so don't include it.
+  # On Windows, we don't set SWIFT_SDK_WINDOWS_ARCH_{ARCH}_PATH, so don't include it.
   if (NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-    list(APPEND result "-sdk" "${SWIFT_SDK_${sdk}_PATH}")
+    list(APPEND result "-sdk" "${SWIFT_SDK_${sdk}_ARCH_${arch}_PATH}")
   endif()
 
   if(BUILD_STANDALONE)
@@ -307,7 +311,7 @@ function(_add_variant_swift_compile_flags
   is_darwin_based_sdk("${sdk}" IS_DARWIN)
   if(IS_DARWIN)
     list(APPEND result
-        "-F" "${SWIFT_SDK_${sdk}_PATH}/../../../Developer/Library/Frameworks")
+        "-F" "${SWIFT_SDK_${sdk}_ARCH_{arch}_PATH}/../../../Developer/Library/Frameworks")
   endif()
 
   is_build_type_optimized("${build_type}" optimized)
@@ -340,7 +344,7 @@ function(_add_variant_link_flags)
     ${ARGN})
 
   precondition(LFLAGS_SDK MESSAGE "Should specify an SDK")
-  precondition(LFLAGS_SDK MESSAGE "Should specify an architecture")
+  precondition(LFLAGS_ARCH MESSAGE "Should specify an architecture")
 
   set(result ${${LFLAGS_RESULT_VAR_NAME}})
   set(library_search_directories ${${LFLAGS_LIBRARY_SEARCH_DIRECTORIES_VAR_NAME}})
@@ -383,7 +387,12 @@ function(_add_variant_link_flags)
         "${SWIFT_ANDROID_PREBUILT_PATH}/arm-linux-androideabi/lib/armv7-a"
         "${SWIFT_ANDROID_PREBUILT_PATH}/lib/gcc/arm-linux-androideabi/${SWIFT_ANDROID_NDK_GCC_VERSION}.x")
   elseif("${LFLAGS_SDK}" STREQUAL "FUCHSIA")
-    list(APPEND result "-lc" "-ldl")
+    list(APPEND result "-lc" "-ldl" "-lzircon" "-lfdio")
+    if (LFLAGS_ARCH STREQUAL "aarch64")
+      list(APPEND library_search_directories "${SWIFT_FUCHSIA_AARCH64_LIBS}")
+    elseif (LFLAGS_ARCH STREQUAL "x86_64")
+      list(APPEND library_search_directories "${SWIFT_FUCHSIA_X86_64_LIBS}")
+    endif()
   else()
     # If lto is enabled, we need to add the object path flag so that the LTO code
     # generator leaves the intermediate object file in a place where it will not
@@ -1617,7 +1626,7 @@ function(add_swift_library name)
         # Add PrivateFrameworks, rdar://28466433
         set(swiftlib_link_flags_all ${SWIFTLIB_LINK_FLAGS})
         if(SWIFTLIB_IS_SDK_OVERLAY)
-          list(APPEND swiftlib_swift_compile_flags_all "-Fsystem" "${SWIFT_SDK_${sdk}_PATH}/System/Library/PrivateFrameworks/")
+          list(APPEND swiftlib_swift_compile_flags_all "-Fsystem" "${SWIFT_SDK_${sdk}_ARCH_${arch}_PATH}/System/Library/PrivateFrameworks/")
         endif()
 
        if("${sdk}" STREQUAL "IOS_SIMULATOR")

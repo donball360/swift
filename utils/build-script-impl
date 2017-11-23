@@ -234,7 +234,13 @@ KNOWN_SETTINGS=(
     android-icu-i18n                   ""        "Path to a directory containing libicui18n.so"
     android-icu-i18n-include           ""        "Path to a directory containing headers libicui18n"
     android-deploy-device-path         ""        "Path on an Android device to which built Swift stdlib products will be deployed"
-    fuchsia-build-path                 ""        "Path to directory containing a prebuilt Fuchsia checkout"
+    fuchsia-aarch64-sysroot            ""        "Path to a directory containing a Fuchsia zircon aarch64 sysroot"
+    fuchsia-aarch64-libs               ""        "Path to a directory the Fuchsia aarch64 shared lib directory"
+    fuchsia-x86-64-sysroot             ""        "Path to a directory containing a Fuchsia zircon x86_64 sysroot"
+    fuchsia-x86-64-libs                ""        "Path to a directory the Fuchsia x86_64 shared lib directory"
+    fuchsia-icu-uc-include             ""        "Path to a directory containing Fuchsia ICU common headers"
+    fuchsia-icu-i18n-include           ""        "Path to a directory containing Fuchsia ICU i18n headers"
+    fuchsia-toolchain-path             ""        "Path to a directory containing a Fuchsia clang toolchain"
     check-args-only                    ""        "set to check all arguments are known. Exit with status 0 if success, non zero otherwise"
     common-cmake-options               ""        "CMake options used for all targets, including LLVM/Clang"
     cmark-cmake-options                ""        "CMake options used for all cmark targets"
@@ -2131,7 +2137,13 @@ for host in "${ALL_HOSTS[@]}"; do
                 if [[ ! "${SKIP_BUILD_FUCHSIA}" ]]; then
                     cmake_options=(
                         "${cmake_options[@]}"
-                        -DSWIFT_FUCHSIA_BUILD_PATH:STRING="${FUCHSIA_BUILD_PATH}"
+                        -DSWIFT_FUCHSIA_X86_64_SYSROOT:STRING="${FUCHSIA_X86_64_SYSROOT}"
+                        -DSWIFT_FUCHSIA_X86_64_LIBS:STRING="${FUCHSIA_X86_64_LIBS}"
+                        -DSWIFT_FUCHSIA_AARCH64_SYSROOT:STRING="${FUCHSIA_AARCH64_SYSROOT}"
+                        -DSWIFT_FUCHSIA_AARCH64_LIBS:STRING="${FUCHSIA_AARCH64_LIBS}"
+                        -DSWIFT_FUCHSIA_ICU_UC_INCLUDE:STRING="${FUCHSIA_ICU_UC_INCLUDE}"
+                        -DSWIFT_FUCHSIA_ICU_I18N_INCLUDE:STRING="${FUCHSIA_ICU_I18N_INCLUDE}"
+                        -DSWIFT_FUCHSIA_TOOLCHAIN_PATH:STRING="${FUCHSIA_TOOLCHAIN_PATH}"
                     )
                 fi
 

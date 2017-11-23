@@ -272,6 +272,12 @@ def create_argument_parser():
         action=arguments.action.concat, type=arguments.type.shell_split,
         default=None)
     targets_group.add_argument(
+        "--extra-stdlib-deployment-targets",
+        help="list of additional targets to cross-compile the Swift standard "
+             "library for in addition to default",
+        action=arguments.action.concat, type=arguments.type.shell_split,
+        default=None)
+    targets_group.add_argument(
         "--build-stdlib-deployment-targets",
         help="A space-separated list that filters which of the configured "
              "targets to build the Swift standard library for, or 'all'.",
@@ -978,9 +984,39 @@ iterations with -O",
     fuchsia_group = parser.add_argument_group(
         title="Build settings for Fuchsia")
     fuchsia_group.add_argument(
-        "--fuchsia-build-path",
-        help="Path to a directory containing a prebuilt fuchsia tree"
-             "target arch (eg: $FUCHSIA_DIR)",
+        "--fuchsia-x86_64-libs",
+        help="Path to the Fuchsia x86_64 shared library directory"
+             "(eg: $FUCHSIA_DIR/out/debug-x86-64/x64-shared)",
+        metavar="PATH")
+    fuchsia_group.add_argument(
+        "--fuchsia-x86_64-sysroot",
+        help="Path to a x86_64 compiled zircon sysroot"
+             "(eg: $FUCHSIA_DIR/out/build-zircon/build-zircon-pc-x86-64/sysroot)",
+        metavar="PATH")
+    fuchsia_group.add_argument(
+        "--fuchsia-aarch64-libs",
+        help="Path to the Fuchsia aarch64 shared library directory"
+             "(eg: $FUCHSIA_DIR/out/debug-aarch64/arm64-shared)",
+        metavar="PATH")
+    fuchsia_group.add_argument(
+        "--fuchsia-aarch64-sysroot",
+        help="Path to a aarch64 compiled zircon sysroot"
+             "(eg: $FUCHSIA_DIR/out/build-zircon/build-zircon-qemu-arm64/sysroot)",
+        metavar="PATH")
+    fuchsia_group.add_argument(
+        "--fuchsia-icu-uc-include",
+        help="Path to a directory containing a headers for ICU UC"
+             "(eg: $FUCHSIA_DIR/third_party/icu/source/common)",
+        metavar="PATH")
+    fuchsia_group.add_argument(
+        "--fuchsia-icu-i18n-include",
+        help="Path to a directory containing a headers for ICU i18n"
+             "(eg: $FUCHSIA_DIR/third_party/icu/source/i18n)",
+        metavar="PATH")
+    fuchsia_group.add_argument(
+        "--fuchsia-toolchain-path",
+        help="Path to a directory containing a Fuchsia clang toolchain"
+             "(eg: $FUCHSIA_DIR/buildtools/linux-x64/clang)",
         metavar="PATH")
 
     parser.add_argument(

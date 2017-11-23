@@ -126,7 +126,7 @@ class StdlibDeploymentTarget(object):
 
     Android = Platform("android", archs=["armv7"])
 
-    Fuchsia = Platform("fuchsia", archs=["x86_64"])
+    Fuchsia = Platform("fuchsia", archs=["x86_64", "aarch64"])
 
     Windows = Platform("windows", archs=["x86_64"])
 

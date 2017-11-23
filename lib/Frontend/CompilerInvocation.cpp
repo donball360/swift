@@ -823,7 +823,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
 
   if (FrontendOpts.InputKind == InputFileKind::IFK_SIL)
     Opts.DisableAvailabilityChecking = true;
-  
+
   if (auto A = Args.getLastArg(OPT_enable_access_control,
                                OPT_disable_access_control)) {
     Opts.EnableAccessControl
@@ -854,7 +854,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
     Opts.EnableTargetOSChecking
       = A->getOption().matches(OPT_enable_target_os_checking);
   }
-  
+
   Opts.EnableASTScopeLookup |= Args.hasArg(OPT_enable_astscope_lookup);
   Opts.DebugConstraintSolver |= Args.hasArg(OPT_debug_constraints);
   Opts.EnableConstraintPropagation |= Args.hasArg(OPT_propagate_constraints);
@@ -892,7 +892,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
 
     Opts.DebugConstraintSolverAttempt = attempt;
   }
-  
+
   if (const Arg *A = Args.getLastArg(OPT_debug_forbid_typecheck_prefix)) {
     Opts.DebugForbidTypecheckPrefix = A->getValue();
   }
@@ -904,7 +904,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
                      A->getAsString(Args), A->getValue());
       return true;
     }
-    
+
     Opts.SolverMemoryThreshold = threshold;
   }
 
@@ -929,7 +929,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
 
     Opts.MaxCircularityDepth = threshold;
   }
-  
+
   for (const Arg *A : Args.filtered(OPT_D)) {
     Opts.addCustomConditionalCompilationFlag(A->getValue());
   }
@@ -1102,9 +1102,9 @@ static bool ParseSearchPathArgs(SearchPathOptions &Opts,
   // Opts.RuntimeIncludePath is set by calls to
   // setRuntimeIncludePath() or setMainExecutablePath().
   // Opts.RuntimeImportPath is set by calls to
-  // setRuntimeIncludePath() or setMainExecutablePath() and 
+  // setRuntimeIncludePath() or setMainExecutablePath() and
   // updated by calls to setTargetTriple() or parseArgs().
-  // Assumes exactly one of setMainExecutablePath() or setRuntimeIncludePath() 
+  // Assumes exactly one of setMainExecutablePath() or setRuntimeIncludePath()
   // is called before setTargetTriple() and parseArgs().
   // TODO: improve the handling of RuntimeIncludePath.
 
@@ -1222,7 +1222,7 @@ static bool ParseSILArgs(SILOptions &Opts, ArgList &Args,
       return true;
     }
   }
-  
+
   if (const Arg *A = Args.getLastArg(OPT_disable_sil_linking,
                                      OPT_sil_link_all)) {
     if (A->getOption().matches(OPT_disable_sil_linking))
@@ -1486,7 +1486,7 @@ static bool ParseIRGenArgs(IRGenOptions &Opts, ArgList &Args,
 
   if (Args.hasArg(OPT_use_jit))
     Opts.UseJIT = true;
-  
+
   for (const Arg *A : Args.filtered(OPT_verify_type_layout)) {
     Opts.VerifyTypeLayoutNames.push_back(A->getValue());
   }
